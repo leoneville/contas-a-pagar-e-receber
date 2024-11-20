@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from contas_a_pagar_e_receber.routes.contas_a_pagar_e_receber_router import router
 import uvicorn
 
-
 app = FastAPI()
 
 
