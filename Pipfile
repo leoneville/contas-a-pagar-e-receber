@@ -10,6 +10,7 @@ psycopg2 = "*"
 
 [dev-packages]
 pytest = "*"
+alembic = "*"
 
 [requires]
 python_version = "3.12"
