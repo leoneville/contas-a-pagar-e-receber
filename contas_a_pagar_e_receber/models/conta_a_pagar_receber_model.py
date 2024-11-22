@@ -11,5 +11,5 @@ class ContaPagarReceber(Base):
 
     id: int = Column(Integer, primary_key=True, autoincrement=True)
     descricao: str = Column(String(30))
-    valor: Decimal = Column(Numeric)
+    valor: float = Column(Numeric(15, 2))
     tipo: str = Column(String(30))

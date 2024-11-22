@@ -1,9 +1,8 @@
-from decimal import Decimal
 from enum import Enum
 import json
-from typing import List
+from typing import Annotated, List
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 from sqlalchemy.orm import Session
 
 from contas_a_pagar_e_receber.models.conta_a_pagar_receber_model import (
@@ -17,7 +16,7 @@ router = APIRouter(
 )
 
 
-class TipoEnum(str, Enum):
+class ContaPagarReceberTipoEnum(str, Enum):
     pagar = "PAGAR"
     receber = "RECEBER"
 
@@ -25,11 +24,10 @@ class TipoEnum(str, Enum):
 class ContaPagarReceberResponse(BaseModel):
     id: int
     descricao: str
-    valor: Decimal
-    tipo: str  # PAGAR, RECEBER
+    valor: float
+    tipo: ContaPagarReceberTipoEnum
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class GetAllPagarReceberResponse(BaseModel):
@@ -37,9 +35,9 @@ class GetAllPagarReceberResponse(BaseModel):
 
 
 class ContaPagarReceberRequest(BaseModel):
-    descricao: constr(max_length=30)  # type: ignore
-    valor: Decimal
-    tipo: TipoEnum
+    descricao: Annotated[str, StringConstraints(min_length=3, max_length=30)]
+    valor: float = Field(gt=0)
+    tipo: ContaPagarReceberTipoEnum
 
 
 @router.get(
@@ -54,13 +52,8 @@ class ContaPagarReceberRequest(BaseModel):
 def listar_contas(db: Session = Depends(get_db)) -> GetAllPagarReceberResponse:
     contas = db.query(ContaPagarReceber).all()
 
-    response = json.loads(
-        GetAllPagarReceberResponse(
-            contas=[
-                ContaPagarReceberResponse.model_validate(conta).model_dump()
-                for conta in contas
-            ]
-        ).model_dump_json()
+    response = GetAllPagarReceberResponse(
+        contas=[ContaPagarReceberResponse.model_validate(conta) for conta in contas]
     )
 
     return response
