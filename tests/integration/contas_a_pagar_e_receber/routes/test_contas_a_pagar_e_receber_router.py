@@ -132,3 +132,53 @@ def test_deve_retornar_erro_quando_o_tipo_for_invalido():
     )
     assert response.status_code == 422
     assert response.json()["detail"][0]["loc"] == ["body", "tipo"]
+
+
+def test_deve_atualizar_conta_a_pagar_e_receber():
+    response = client.post(
+        "/contas-a-pagar-e-receber",
+        json={"descricao": "Curso de Python", "valor": 333.00, "tipo": "PAGAR"},
+    )
+
+    id_da_conta_a_pagar_e_receber = response.json()["id"]
+
+    response_put = client.put(
+        f"/contas-a-pagar-e-receber/{id_da_conta_a_pagar_e_receber}",
+        json={"descricao": "Curso de Python", "valor": 111.00, "tipo": "PAGAR"},
+    )
+
+    assert response_put.status_code == 200
+    assert response_put.json()["valor"] == 111
+
+
+def test_deve_remover_conta_a_pagar_e_receber():
+    response = client.post(
+        "/contas-a-pagar-e-receber",
+        json={"descricao": "Curso de Python", "valor": 333.00, "tipo": "PAGAR"},
+    )
+
+    id_da_conta_a_pagar_e_receber = response.json()["id"]
+
+    response_delete = client.delete(
+        f"/contas-a-pagar-e-receber/{id_da_conta_a_pagar_e_receber}"
+    )
+
+    assert response_delete.status_code == 204
+
+
+def test_deve_listar_conta_a_pagar_e_receber_por_id():
+    response = client.post(
+        "/contas-a-pagar-e-receber",
+        json={"descricao": "Curso de Python", "valor": 333.00, "tipo": "PAGAR"},
+    )
+
+    id_da_conta_a_pagar_e_receber = response.json()["id"]
+
+    response_get = client.get(
+        f"/contas-a-pagar-e-receber/{id_da_conta_a_pagar_e_receber}"
+    )
+
+    assert response_get.status_code == 200
+    assert response_get.json()["valor"] == 333
+    assert response_get.json()["tipo"] == "PAGAR"
+    assert response_get.json()["descricao"] == "Curso de Python"
